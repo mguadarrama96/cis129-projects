@@ -1,3 +1,6 @@
+# Lab 03 of CIS 129. We designed a program for a coffee and muffin shop, to be able to create accurate reciepts no matter / 
+# what inputs are used.
+
 # First part of the receipt, including the decorative asteriks. Collecting the values for coffees and muffins.
 print('***************************************')
 print('My Coffee and Muffin Shop')
