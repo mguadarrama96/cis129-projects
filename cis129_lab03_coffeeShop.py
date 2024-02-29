@@ -26,6 +26,8 @@ print()
 # New variables with set values. The price of the coffee and muffins.
 coffee_price = 5
 muffin_price = 4 
+cookie_price = 2
+cake_price = 3
 
 # The variable for the cost of the coffee and muffins, without the tax included.
 ## Added the new menu items to the subtotal variable.
