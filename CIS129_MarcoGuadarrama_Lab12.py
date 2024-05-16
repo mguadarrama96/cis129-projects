@@ -11,13 +11,7 @@ class Pet:
         self.__animal_type = animal_type
 
     def set_age(self, age):
-        while True:
-            try:
-                self.__age = int(age)
-                break  # Exit the loop if input is a valid integer
-            except ValueError:
-                print("Invalid input. Age must be an integer. Please try again.")
-                age = input("Enter the pet's age: ")
+        self.__age = int(age)
 
     def get_name(self):
         return self.__name
@@ -31,7 +25,7 @@ class Pet:
 def main():
     # Create a Pet object
     pet_name = input("Enter the pet's name: ")
-    pet_type = input("Enter the type of pet (e.g., Dog, Cat, Bird): ")
+    pet_type = input("Enter the type of pet: ")
 
     while True:
         pet_age = input("Enter the pet's age: ")
@@ -39,7 +33,7 @@ def main():
             pet_age = int(pet_age)  # Check if the input is a valid integer
             break
         except ValueError:
-            print("Invalid input. Age must be an integer. Please try again.")
+            print("No! Age must be a number. Please try again.")
 
     my_pet = Pet(pet_name, pet_type, pet_age)
 
