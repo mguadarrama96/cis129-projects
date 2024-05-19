@@ -1,0 +1,114 @@
+# Step 1: Setup Configuration
+# Define configuration settings
+config = {
+    "shared_drive_path": "/path/to/shared/drive",
+    "local_backup_path": "/path/to/local/backup",
+    "days_to_keep_backup": 30,  # Number of days to keep backups locally
+    "archive_retention_days": 730,  # Number of days to keep files on the shared drive (2 years)
+    "folder_naming_convention": "{date:%Y-%m-%d}",  # How to name folders (e.g., 2024-05-20)
+    "file_naming_convention": "file_{index}.txt",  # How to name files (e.g., file_1.txt)
+    "files_per_folder": 5  # Number of files to create in each folder
+}
+
+
+# Step 2: Create Directories and Files
+def create_directories_and_files(base_path, folder_name, file_count):
+    # Construct the full path for the new folder
+    folder_path = os.path.join(base_path, folder_name)
+    # Create the folder if it doesn't exist
+    os.makedirs(folder_path, exist_ok=True)
+    # Create the specified number of empty files in the folder
+    for i in range(file_count):
+        # Create an empty file named "file_i.txt" in the folder
+        file_path = os.path.join(folder_path, config['file_naming_convention'].format(index=i+1))
+        open(file_path, 'w').close()
+
+
+# Step 3: Main Daily Task
+def main():
+    # Calculate the date for tomorrow
+    tomorrow = datetime.now() + timedelta(days=1)
+    # Format the folder name using tomorrow's date
+    folder_name = config['folder_naming_convention'].format(date=tomorrow)
+
+
+    # Create directories and files on the shared drive
+    create_directories_and_files(config['shared_drive_path'], folder_name, config['files_per_folder'])
+
+
+    # Create a backup of the new folder on the local drive
+    backup_folder_path = os.path.join(config['local_backup_path'], folder_name)
+    shutil.copytree(os.path.join(config['shared_drive_path'], folder_name), backup_folder_path)
+
+
+    # Remove old backups beyond the retention period
+    cleanup_old_backups()
+
+
+# Step 4: Cleanup Old Backups
+def cleanup_old_backups():
+    # Calculate the cutoff date for old backups
+    now = datetime.now()
+    cutoff_date = now - timedelta(days=config['days_to_keep_backup'])
+    # Iterate over all folders in the local backup directory
+    for folder_name in os.listdir(config['local_backup_path']):
+        folder_path = os.path.join(config['local_backup_path'], folder_name)
+        # Convert folder name to a date
+        folder_date = datetime.strptime(folder_name, "%Y-%m-%d")
+        # Delete folders older than the cutoff date
+        if folder_date < cutoff_date:
+            shutil.rmtree(folder_path)
+
+
+# Step 5: Cleanup Old Archives
+def cleanup_old_archives():
+    # Calculate the cutoff date for old archives
+    now = datetime.now()
+    cutoff_date = now - timedelta(days=config['archive_retention_days'])
+    # Iterate over all folders in the shared drive
+    for folder_name in os.listdir(config['shared_drive_path']):
+        folder_path = os.path.join(config['shared_drive_path'], folder_name)
+        # Convert folder name to a date
+        folder_date = datetime.strptime(folder_name, "%Y-%m-%d")
+        # Delete folders older than the cutoff date
+        if folder_date < cutoff_date:
+            shutil.rmtree(folder_path)
+
+
+# Step 6: Load and Save Configuration
+def load_config():
+    # Read configuration from a JSON file
+    with open('config.json', 'r') as file:
+        return json.load(file)
+
+
+def save_config(config):
+    # Write configuration to a JSON file
+    with open('config.json', 'w') as file:
+        json.dump(config, file, indent=4)
+
+
+def update_config(new_settings):
+    # Load existing configuration
+    config = load_config()
+    # Update configuration with new settings
+    config.update(new_settings)
+    # Save the updated configuration
+    save_config(config)
+
+
+# Step 7: Execute the Script
+if __name__ == "__main__":
+    # Run the main function to create new files and backup
+    main()
+    # Clean up old archives from the shared drive
+    cleanup_old_archives()
+
+
+# Step 8: Schedule the Script
+# (This step is done outside of the script using system tools)
+# Example for Unix-like systems:
+# Use a cron job to run the script daily at midnight
+# 0 0 * * * /usr/bin/python3 /path/to/script.py
+# Example for Windows:
+# Use Task Scheduler to run the script daily
